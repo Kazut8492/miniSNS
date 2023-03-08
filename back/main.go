@@ -40,7 +40,7 @@ func dbInit() *gorm.DB {
 	return db
 }
 
-func insert(db *gorm.DB) {
+func insertInitialUser(db *gorm.DB) {
 	user := User{
 		Username: "太郎",
 		Age:      20,
@@ -52,11 +52,46 @@ func insert(db *gorm.DB) {
 	fmt.Println("count:", result.RowsAffected)
 }
 
+func insertInitialPost(db *gorm.DB) {
+	post := Post{
+		Title:   "テストtitle",
+		Content: "テストcontent",
+		Author:  "テストauthor",
+	}
+	result := db.Create(&post)
+	if result.Error != nil {
+		log.Fatal(result.Error)
+	}
+	fmt.Println("count:", result.RowsAffected)
+}
+
+//func readAllUsers(db *gorm.DB) []User {
+//	users := []User{}
+//	result := db.Find(&users)
+//	if result.Error != nil {
+//		log.Fatal(result.Error)
+//	}
+//	return users
+//}
+
+func readAllUsers(db *gorm.DB) []User {
+	users := []User{}
+	result := db.Find(&users)
+	fmt.Println("user:", users)
+	if result.Error != nil {
+		log.Fatal(result.Error)
+	}
+	fmt.Println("count:", result.RowsAffected)
+	return users
+}
+
 func main() {
 
 	db := dbInit()
 	db.AutoMigrate(&User{})
-	insert(db)
+	db.AutoMigrate(&Post{})
+	insertInitialUser(db)
+	insertInitialPost(db)
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
@@ -68,10 +103,10 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	router.GET("/home", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"count": 100,
-		})
+	router.GET("/users", func(c *gin.Context) {
+		users := readAllUsers(db)
+		c.JSON(200, gin.H{"users": users})
 	})
+
 	router.Run()
 }
