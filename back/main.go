@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
@@ -49,7 +48,6 @@ func insertInitialUser(db *gorm.DB) {
 	if result.Error != nil {
 		log.Fatal(result.Error)
 	}
-	fmt.Println("count:", result.RowsAffected)
 }
 
 func insertInitialPost(db *gorm.DB) {
@@ -62,27 +60,24 @@ func insertInitialPost(db *gorm.DB) {
 	if result.Error != nil {
 		log.Fatal(result.Error)
 	}
-	fmt.Println("count:", result.RowsAffected)
 }
-
-//func readAllUsers(db *gorm.DB) []User {
-//	users := []User{}
-//	result := db.Find(&users)
-//	if result.Error != nil {
-//		log.Fatal(result.Error)
-//	}
-//	return users
-//}
 
 func readAllUsers(db *gorm.DB) []User {
 	users := []User{}
 	result := db.Find(&users)
-	fmt.Println("user:", users)
 	if result.Error != nil {
 		log.Fatal(result.Error)
 	}
-	fmt.Println("count:", result.RowsAffected)
 	return users
+}
+
+func readAllPosts(db *gorm.DB) []Post {
+	posts := []Post{}
+	result := db.Find(&posts)
+	if result.Error != nil {
+		log.Fatal(result.Error)
+	}
+	return posts
 }
 
 func main() {
@@ -103,9 +98,9 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	router.GET("/users", func(c *gin.Context) {
-		users := readAllUsers(db)
-		c.JSON(200, gin.H{"users": users})
+	router.GET("/posts", func(c *gin.Context) {
+		posts := readAllPosts(db)
+		c.JSON(200, posts)
 	})
 
 	router.Run()
