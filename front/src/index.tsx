@@ -13,7 +13,7 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
         <Routes>
-            <Route path={`/`} element={<Home />} />
+            <Route path={`/users`} element={<Home />} />
         </Routes>
     </BrowserRouter>
   </React.StrictMode>
