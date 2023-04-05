@@ -1,12 +1,13 @@
 package main
 
 import (
+	"log"
+	"time"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"log"
-	"time"
 )
 
 type User struct {
@@ -39,26 +40,37 @@ func dbInit() *gorm.DB {
 	return db
 }
 
-func insertInitialUser(db *gorm.DB) {
-	user := User{
-		Username: "太郎",
-		Age:      20,
+func insertDummyUsers(db *gorm.DB) {
+	users := []User{
+		{Username: "太郎", Age: 20},
+		{Username: "次郎", Age: 21},
+		{Username: "三郎", Age: 22},
+		{Username: "四郎", Age: 23},
+		{Username: "五郎", Age: 24},
 	}
-	result := db.Create(&user)
-	if result.Error != nil {
-		log.Fatal(result.Error)
+
+	for _, user := range users {
+		result := db.Create(&user)
+		if result.Error != nil {
+			log.Fatal(result.Error)
+		}
 	}
 }
 
-func insertInitialPost(db *gorm.DB) {
-	post := Post{
-		Title:   "テストtitle",
-		Content: "テストcontent",
-		Author:  "テストauthor",
+func insertDummyPosts(db *gorm.DB) {
+	posts := []Post{
+		{Title: "テストtitle1", Content: "テストcontent1", Author: "テストauthor1"},
+		{Title: "テストtitle2", Content: "テストcontent2", Author: "テストauthor2"},
+		{Title: "テストtitle3", Content: "テストcontent3", Author: "テストauthor3"},
+		{Title: "テストtitle4", Content: "テストcontent4", Author: "テストauthor4"},
+		{Title: "テストtitle5", Content: "テストcontent5", Author: "テストauthor5"},
 	}
-	result := db.Create(&post)
-	if result.Error != nil {
-		log.Fatal(result.Error)
+
+	for _, post := range posts {
+		result := db.Create(&post)
+		if result.Error != nil {
+			log.Fatal(result.Error)
+		}
 	}
 }
 
@@ -85,8 +97,8 @@ func main() {
 	db := dbInit()
 	db.AutoMigrate(&User{})
 	db.AutoMigrate(&Post{})
-	insertInitialUser(db)
-	insertInitialPost(db)
+	insertDummyUsers(db)
+	insertDummyPosts(db)
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
@@ -98,7 +110,7 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	router.GET("/posts", func(c *gin.Context) {
+	router.GET("/home", func(c *gin.Context) {
 		posts := readAllPosts(db)
 		c.JSON(200, posts)
 	})

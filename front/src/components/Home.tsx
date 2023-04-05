@@ -8,7 +8,7 @@ export const Home: React.FC<{  }> = props => {
     const [data, setData] =  useState<any[]>([])
 
     useEffect(() => {
-        fetch("http://localhost:8080/posts")
+        fetch("http://localhost:8080/home")
             .then(response => response.json())
             .then(data => {
                 console.log(data)
@@ -33,12 +33,5 @@ export const Home: React.FC<{  }> = props => {
                 </Layout>
             </Layout>
         </Layout>
-        // <div>
-        //     <h1>Home</h1>
-        //     {data && data.map((post: any) => {
-        //         return <p>{post.content}</p>
-        //     })}
-        //
-        // </div>
     );
 };
