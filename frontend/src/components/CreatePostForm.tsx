@@ -27,10 +27,13 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({ handleSubmit }) 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     handleSubmit(title, content, genre);
+    setTitle("");
+    setContent("");
+    setGenre("");
   };
 
   return (
-    <Box component={Paper} p={3} maxWidth="sm" mx="auto">
+    <Box component={Paper} p={3} maxWidth="sm" mx="auto" style={{marginTop:20}}>
       <form onSubmit={handleFormSubmit}>
         <Grid container spacing={2}>
           <Grid item xs={12}>
@@ -41,6 +44,7 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({ handleSubmit }) 
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               autoComplete="off" // Add this line to prevent the browser from treating it as a password input
+              variant="filled"
             />
           </Grid>
           <Grid item xs={12}>

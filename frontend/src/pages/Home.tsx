@@ -55,6 +55,9 @@ export const Home: React.FC<{  }> = props => {
                                         By: {post.author}
                                     </Typography>
                                     <Typography variant="body2" component="p">
+                                        Genre: {post.genre}
+                                    </Typography>
+                                    <Typography variant="body2" component="p">
                                         {post.content}
                                     </Typography>
                                 </CardContent>
