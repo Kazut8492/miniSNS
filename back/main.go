@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"time"
 
@@ -13,7 +14,6 @@ import (
 type User struct {
 	gorm.Model
 
-	ID        int    `json:"id"`
 	Username  string `json:"username"`
 	Password  string `json:"password"`
 	Email     string `json:"email"`
@@ -25,19 +25,32 @@ type User struct {
 type Post struct {
 	gorm.Model
 
-	ID      int    `json:"id"`
 	Title   string `json:"title"`
 	Content string `json:"content"`
 	Author  string `json:"author"`
 }
 
 func dbInit() *gorm.DB {
-	dsn := "root:pass1111@tcp(127.0.0.1:3306)/toit?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:freedomfox@tcp(127.0.0.1:3306)/minisns?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
+
 	return db
+}
+
+func createDatabaseIfNotExists() {
+	db, err := sql.Open("mysql", "root:freedomfox@tcp(127.0.0.1:3306)/?charset=utf8mb4&parseTime=True&loc=Local")
+	if err != nil {
+		panic("failed to connect to MySQL")
+	}
+	defer db.Close()
+
+	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS minisns")
+	if err != nil {
+		panic("failed to create database minisns")
+	}
 }
 
 func insertDummyUsers(db *gorm.DB) {
@@ -92,25 +105,51 @@ func readAllPosts(db *gorm.DB) []Post {
 	return posts
 }
 
+func isTableEmpty(db *gorm.DB, tableName string) bool {
+	var count int64
+	db.Table(tableName).Count(&count)
+	return count == 0
+}
+
 func main() {
 
+	createDatabaseIfNotExists()
 	db := dbInit()
 	db.AutoMigrate(&User{})
 	db.AutoMigrate(&Post{})
-	insertDummyUsers(db)
-	insertDummyPosts(db)
+
+	// Insert dummy users only if the User table is empty
+	if isTableEmpty(db, "users") {
+		insertDummyUsers(db)
+	}
+
+	// Insert dummy posts only if the Post table is empty
+	if isTableEmpty(db, "posts") {
+		insertDummyPosts(db)
+	}
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},
-		AllowMethods:     []string{"PUT", "PATCH"},
-		AllowHeaders:     []string{"Origin"},
+		AllowMethods:     []string{"PUT", "PATCH", "POST", "GET", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
 
 	router.GET("/home", func(c *gin.Context) {
+		posts := readAllPosts(db)
+		c.JSON(200, posts)
+	})
+
+	router.POST("/home", func(c *gin.Context) {
+		var post Post
+		c.BindJSON(&post)
+		result := db.Create(&post)
+		if result.Error != nil {
+			log.Fatal(result.Error)
+		}
 		posts := readAllPosts(db)
 		c.JSON(200, posts)
 	})
