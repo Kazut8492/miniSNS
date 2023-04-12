@@ -31,7 +31,7 @@ type Post struct {
 }
 
 func dbInit() *gorm.DB {
-	dsn := "file:./backend/pkg/db/sqlite/db.sqlite3?cache=shared&mode=rwc&_fk=1"
+	dsn := "file:./pkg/db/sqlite/db.sqlite3?cache=shared&mode=rwc&_fk=1"
 	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")

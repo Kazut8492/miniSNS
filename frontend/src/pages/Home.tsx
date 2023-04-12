@@ -3,6 +3,7 @@ import {useEffect, useState} from "react";
 import ButtonAppBar from "../components/ButtonAppBar";
 import { Grid, Card, CardContent, Typography, Container } from "@mui/material"
 import {CreatePostForm} from "../components/CreatePostForm";
+import {ShowPostsList} from "../components/ShowPostsList";
 
 export const Home: React.FC<{  }> = props => {
     const [data, setData] =  useState<any[]>([])
@@ -42,30 +43,7 @@ export const Home: React.FC<{  }> = props => {
         <>
             <ButtonAppBar />
             <CreatePostForm handleSubmit={handleSunmit} />
-            <Container maxWidth="md" style={{ marginTop: 20 }}>
-                <Grid container spacing={2} direction="column">
-                    {data.map((post, index) => (
-                        <Grid item key={index}>
-                            <Card>
-                                <CardContent>
-                                    <Typography variant="h5" component="h2">
-                                        {post.title}
-                                    </Typography>
-                                    <Typography color="textSecondary" gutterBottom>
-                                        By: {post.author}
-                                    </Typography>
-                                    <Typography variant="body2" component="p">
-                                        Genre: {post.genre}
-                                    </Typography>
-                                    <Typography variant="body2" component="p">
-                                        {post.content}
-                                    </Typography>
-                                </CardContent>
-                            </Card>
-                        </Grid>
-                    ))}
-                </Grid>
-            </Container>
+            <ShowPostsList data={data} />
         </>
     );
 };
